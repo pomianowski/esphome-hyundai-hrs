@@ -1,0 +1,66 @@
+esphome:
+  name: hyundai-hrs-hvac
+  friendly_name: Hyundai HRS HVAC
+  # Automatically add the mac address to the name
+  # so you can use a single firmware for all devices
+  name_add_mac_suffix: true
+
+esp32:
+  board: esp32dev
+  framework:
+    type: esp-idf
+
+# To be able to get logs from the device via serial and api.
+logger:
+
+# API is a requirement of the dashboard import.
+api:
+
+# OTA is required for Over-the-Air updating
+ota:
+  - platform: esphome
+
+wifi:
+  # Set up a wifi access point using the device name above
+  ap:
+
+# In combination with the `ap` this allows the user
+# to provision wifi credentials to the device.
+captive_portal:
+
+uart:
+  id: uart_bus
+  tx_pin: GPIO22  # RS485_TX
+  rx_pin: GPIO21  # RS485_RX
+  baud_rate: 9600
+  stop_bits: 1
+  parity: NONE
+
+output:
+  - platform: gpio
+    id: ENABLE_PIN # Enable the chip
+    pin:
+      number: GPIO19
+      inverted: true
+  - platform: gpio
+    id: SE_PIN # Enable autodirection
+    pin:
+      number: GPIO17
+      inverted: true
+  - platform: gpio
+    id: ENABLE_5V_PIN # Enable 5V pin for RS485 chip
+    pin:
+      number: GPIO16
+      inverted: true
+
+modbus:
+  id: modbus_primary
+  # flow_control_pin: GPIO17  # RS485_EN (Driver Enable)
+
+# Main configuration for HRS
+modbus_controller:
+  - id: HRS200_controller
+    address: 0x01
+    modbus_id: modbus_primary
+    command_throttle: 200ms
+    setup_priority: -10
